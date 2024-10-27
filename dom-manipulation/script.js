@@ -50,6 +50,7 @@ function addQuote() {
       id: Date.now(),
       text: quoteText,
       category: quoteCategory,
+      synced: false,
     };
     quotes.push(newQuote);
     saveQuotes(); // Update local storage after adding a new quote
@@ -90,6 +91,28 @@ async function fetchQuotesFromServer() {
 // Function to sync local quotes with server data and handle conflicts
 async function syncWithServer() {
   await fetchQuotesFromServer();
+
+  // Send any new local quotes to the server
+  const newQuotes = quotes.filter((quote) => !quote.synced); // Quotes not yet synced
+  newQuotes.forEach(async (quote) => {
+    try {
+      const response = await fetch(serverUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(quote),
+      });
+
+      if (response.ok) {
+        quote.synced = true; // Mark as synced
+      }
+    } catch (error) {
+      console.error("Error syncing quote to server:", error);
+    }
+  });
+
+  saveQuotes(); // Update local storage to reflect synced status
 }
 
 // Function to populate categories dynamically from quotes array

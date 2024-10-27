@@ -65,13 +65,13 @@ function addQuote() {
   }
 }
 
-// Function to sync local quotes with server data
-async function syncWithServer() {
+// Fetch quotes from the server and merge them with local quotes
+async function fetchQuotesFromServer() {
   try {
     const response = await fetch(serverUrl);
     const serverQuotes = await response.json();
 
-    // Resolve conflicts: Server data takes precedence
+    // Merge server quotes with local quotes, avoiding duplicates
     const localQuoteIds = quotes.map((q) => q.id);
     serverQuotes.forEach((serverQuote) => {
       if (!localQuoteIds.includes(serverQuote.id)) {
@@ -80,10 +80,16 @@ async function syncWithServer() {
     });
 
     saveQuotes(); // Update local storage
-    alert("Quotes synced with server successfully!");
+    alert("Quotes fetched and updated from server!");
+    filterQuotes(); // Refresh displayed quotes
   } catch (error) {
-    console.error("Error syncing with server:", error);
+    console.error("Error fetching quotes from server:", error);
   }
+}
+
+// Function to sync local quotes with server data and handle conflicts
+async function syncWithServer() {
+  await fetchQuotesFromServer();
 }
 
 // Function to populate categories dynamically from quotes array

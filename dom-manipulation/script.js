@@ -73,7 +73,7 @@ async function postQuoteToServer(quote) {
       },
       body: JSON.stringify(quote),
     });
-    showNotification("New quote synced to the server!");
+    showNotification("Quotes synced with server!"); // Notification updated here
   } catch (error) {
     console.error("Error posting quote to server:", error);
     showNotification("Error syncing quote to server.", true);

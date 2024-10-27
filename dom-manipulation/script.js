@@ -1,24 +1,17 @@
+
+
 // Array to store quotes with text and category
 const quotes = [
-  {
-    text: "The only limit to our realization of tomorrow is our doubts of today.",
-    category: "Motivation",
-  },
-  {
-    text: "In three words I can sum up everything I've learned about life: it goes on.",
-    category: "Life",
-  },
-  {
-    text: "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-    category: "Success",
-  },
+  { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Motivation" },
+  { text: "In three words I can sum up everything I've learned about life: it goes on.", category: "Life" },
+  { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", category: "Success" }
 ];
 
 // Function to display a random quote from the array
 function showRandomQuote() {
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quoteDisplay = document.getElementById("quoteDisplay");
-  quoteDisplay.innerHTML = ""; // Clear previous quote
+  quoteDisplay.innerHTML = "";  // Clear previous quote
 
   const quote = quotes[randomIndex];
   const quoteText = document.createElement("p");

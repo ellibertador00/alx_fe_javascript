@@ -1,5 +1,7 @@
 
 
+
+
 // Array to store quotes with text and category
 const quotes = [
   { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Motivation" },
@@ -42,3 +44,33 @@ function addQuote() {
     alert("Please fill in both the quote and category fields.");
   }
 }
+
+// Function to dynamically create and display the "Add Quote" form
+function createAddQuoteForm() {
+  const formContainer = document.createElement("div");
+
+  const inputText = document.createElement("input");
+  inputText.type = "text";
+  inputText.id = "newQuoteText";
+  inputText.placeholder = "Enter a new quote";
+  
+  const inputCategory = document.createElement("input");
+  inputCategory.type = "text";
+  inputCategory.id = "newQuoteCategory";
+  inputCategory.placeholder = "Enter quote category";
+  
+  const addButton = document.createElement("button");
+  addButton.textContent = "Add Quote";
+  addButton.onclick = addQuote;
+
+  // Append inputs and button to the form container
+  formContainer.appendChild(inputText);
+  formContainer.appendChild(inputCategory);
+  formContainer.appendChild(addButton);
+
+  // Append form container to the body or a specific section
+  document.body.appendChild(formContainer);
+}
+
+// Call createAddQuoteForm to display the form on page load
+createAddQuoteForm();

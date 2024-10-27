@@ -40,7 +40,36 @@ function showRandomQuote() {
   }
 }
 
-// Add a new quote from user input
+// Function to periodically sync quotes with the server
+async function syncQuotes() {
+  try {
+    const response = await fetch(serverUrl);
+    const serverQuotes = await response.json();
+
+    // Conflict Resolution: Merge server quotes with local quotes, avoiding duplicates
+    const localQuoteIds = quotes.map((q) => q.id);
+    let newQuotes = 0;
+
+    serverQuotes.forEach((serverQuote) => {
+      if (!localQuoteIds.includes(serverQuote.id)) {
+        quotes.push(serverQuote);
+        newQuotes++;
+      }
+    });
+
+    if (newQuotes > 0) {
+      saveQuotes(); // Update local storage
+      filterQuotes(); // Refresh displayed quotes
+      showNotification(`Fetched ${newQuotes} new quotes from server!`);
+    } else {
+      showNotification("No new quotes found on server.");
+    }
+  } catch (error) {
+    console.error("Error fetching quotes from server:", error);
+  }
+}
+
+// Function to add a new quote from user input
 function addQuote() {
   const quoteText = document.getElementById("newQuoteText").value;
   const quoteCategory = document.getElementById("newQuoteCategory").value;
@@ -60,59 +89,20 @@ function addQuote() {
 
     populateCategories(); // Update categories dynamically
     filterQuotes(); // Re-apply filter
-    syncWithServer(); // Sync with server
+    syncQuotes(); // Sync with server
   } else {
     alert("Please fill in both the quote and category fields.");
   }
 }
 
-// Fetch quotes from the server and merge them with local quotes
-async function fetchQuotesFromServer() {
-  try {
-    const response = await fetch(serverUrl);
-    const serverQuotes = await response.json();
-
-    // Merge server quotes with local quotes, avoiding duplicates
-    const localQuoteIds = quotes.map((q) => q.id);
-    serverQuotes.forEach((serverQuote) => {
-      if (!localQuoteIds.includes(serverQuote.id)) {
-        quotes.push(serverQuote);
-      }
-    });
-
-    saveQuotes(); // Update local storage
-    alert("Quotes fetched and updated from server!");
-    filterQuotes(); // Refresh displayed quotes
-  } catch (error) {
-    console.error("Error fetching quotes from server:", error);
-  }
-}
-
-// Function to sync local quotes with server data and handle conflicts
-async function syncWithServer() {
-  await fetchQuotesFromServer();
-
-  // Send any new local quotes to the server
-  const newQuotes = quotes.filter((quote) => !quote.synced); // Quotes not yet synced
-  newQuotes.forEach(async (quote) => {
-    try {
-      const response = await fetch(serverUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(quote),
-      });
-
-      if (response.ok) {
-        quote.synced = true; // Mark as synced
-      }
-    } catch (error) {
-      console.error("Error syncing quote to server:", error);
-    }
-  });
-
-  saveQuotes(); // Update local storage to reflect synced status
+// Function to display notifications or data updates
+function showNotification(message) {
+  const notification = document.getElementById("notification");
+  notification.textContent = message;
+  notification.style.display = "block";
+  setTimeout(() => {
+    notification.style.display = "none";
+  }, 3000);
 }
 
 // Function to populate categories dynamically from quotes array
@@ -159,8 +149,8 @@ function getFilteredQuotes() {
     : quotes.filter((quote) => quote.category === selectedCategory);
 }
 
-// Sync with server every 60 seconds
-setInterval(syncWithServer, 60000);
+// Sync quotes with server every 60 seconds
+setInterval(syncQuotes, 60000);
 
 // Load categories and filter on page load
 window.onload = () => {
